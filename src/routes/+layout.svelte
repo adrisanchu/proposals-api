@@ -18,10 +18,21 @@
 	storeHighlightJs.set(hljs);
 
 	// Floating UI for Popups
-	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
+	import {
+		computePosition,
+		autoUpdate,
+		flip,
+		shift,
+		offset,
+		arrow,
+	} from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
+
+<svelte:head>
+	<title>DPE - Propuestas H2030</title>
+</svelte:head>
 
 <!-- App Shell -->
 <AppShell>
@@ -29,36 +40,16 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<strong class="text-xl uppercase">Skeleton</strong>
+				<strong class="text-xl uppercase">DPE - Propuestas H2030</strong>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://discord.gg/EXqV7W8MtY"
-					target="_blank"
-					rel="noreferrer"
+				<a class="btn btn-sm variant-ghost-surface" href="/proposals"
+					>Propuestas</a
 				>
-					Discord
-				</a>
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://twitter.com/SkeletonUI"
-					target="_blank"
-					rel="noreferrer"
-				>
-					Twitter
-				</a>
-				<a
-					class="btn btn-sm variant-ghost-surface"
-					href="https://github.com/skeletonlabs/skeleton"
-					target="_blank"
-					rel="noreferrer"
-				>
-					GitHub
-				</a>
+				<a class="btn btn-sm variant-ghost-surface" href="/users">Usuarios</a>
+				<a class="btn btn-sm variant-ghost-surface" href="/docs">Documentos</a>
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
-	<!-- Page Route Content -->
 	<slot />
 </AppShell>
