@@ -8,6 +8,15 @@ body {
 	@apply h-full overflow-hidden;
 }
 
+@layer base {
+	.table thead tr td {
+		@apply pl-2 py-2 font-bold;
+	}
+  .table tbody tr td {
+    @apply align-middle;
+  }
+}
+
 /* rocket theme */
 @font-face {
 	font-family: 'Space Grotesk';
