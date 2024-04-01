@@ -7,3 +7,5 @@ declare namespace App {
 	// interface Error {}
 	// interface Platform {}
 }
+
+var __prisma: import('@prisma/client').PrismaClient;
