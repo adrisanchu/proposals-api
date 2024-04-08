@@ -8,65 +8,193 @@ datasource db {
 }
 
 model User {
-  key           Int        @id @default(autoincrement())
+  key           String         @id @default(uuid())
   email         String
+  id            Int /// integer given by Portalega
   name          String
-  domain        String?
-  type          String?
-  userGroupKey  Int?       @map("user_group_key")
-  Proposal      Proposal[]
-  documentation UserDoc[]
-  group         UserGroup? @relation(fields: [userGroupKey], references: [key])
+  consent       Boolean        @default(false)
+  dni           String?
+  country       String
+  address       String?
+  municipality  String?
+  province      String?
+  phone         Int
+  postCode      Int?           @map("post_code")
+  userGroupKey  String         @map("user_group_key")
+  userGroup     UserGroup      @relation(fields: [userGroupKey], references: [key])
+  companyKey    String?        @map("company_key")
+  company       Company?       @relation(fields: [companyKey], references: [key])
+  proposals     Proposal[]
+  comments      Comment[]
+  modifications Modification[]
+  userDocs      UserDoc[]
 
   @@map("users")
 }
 
+/// Persona física, Promotor de generación, ...
 model UserGroup {
-  key   Int    @id @default(autoincrement())
+  key   String @id @default(uuid())
   name  String
   users User[]
 
   @@map("user_groups")
 }
 
+model Company {
+  key   String  @id @default(uuid())
+  cif   String? /// CIF 
+  name  String // initially filled with domain
+  users User[]
+
+  @@map("companies")
+}
+
 model UserDoc {
-  key     String @id
-  userKey Int    @map("user_key")
-  User    User   @relation(fields: [userKey], references: [key])
+  key      String  @id @default(uuid())
+  webUrl   String? @map("web_url") /// Portalega web path
+  localUrl String? @map("local_url") /// local relative path
+  userKey  String  @map("user_key")
+  User     User    @relation(fields: [userKey], references: [key])
 
   @@map("user_docs")
 }
 
 model GuidingPrinciple {
-  key      Int        @id @default(autoincrement())
+  key      String                         @id
   name     String
-  Proposal Proposal[] @relation("GuidingPrincipleToProposal")
+  Proposal GuidingPrinciplesOnProposals[]
 
   @@map("guiding_principles")
 }
 
-model Doc {
+model ProposalDoc {
   key         String   @id
-  proposalKey Int      @map("proposal_key")
+  webUrl      String?  @map("web_url") /// Portalega web path
+  localUrl    String?  @map("local_url") /// local relative path
+  proposalKey String   @map("proposal_key")
   Proposal    Proposal @relation(fields: [proposalKey], references: [key])
 
-  @@map("docs")
+  @@map("proposal_docs")
+}
+
+model ProposalTemplate {
+  key         String   @id
+  webUrl      String?  @map("web_url") /// Portalega web path
+  localUrl    String?  @map("local_url") /// local relative path
+  proposalKey String   @map("proposal_key")
+  Proposal    Proposal @relation(fields: [proposalKey], references: [key])
+
+  @@map("proposal_templates")
+}
+
+model CommentDoc {
+  key        String  @id
+  webUrl     String? @map("web_url") /// Portalega web path
+  localUrl   String? @map("local_url") /// local relative path
+  commentKey String  @map("comment_key")
+  Comment    Comment @relation(fields: [commentKey], references: [key])
+
+  @@map("comment_docs")
+}
+
+model ModificationDoc {
+  key             String       @id
+  webUrl          String?      @map("web_url") /// Portalega web path
+  localUrl        String?      @map("local_url") /// local relative path
+  modificationKey String       @map("modification_key")
+  Modification    Modification @relation(fields: [modificationKey], references: [key])
+
+  @@map("modification_docs")
+}
+
+model Comment {
+  key           String       @id @default(uuid())
+  id            Int /// integer given by Portalega
+  title         String
+  category      String?
+  comment       String?
+  createdAt     String       @map("created_at") /// DateTime
+  completedAt   String?      @map("completed_at") /// DateTime
+  modificatedAt String?      @map("modificated_at") /// DateTime
+  userKey       String       @map("user_key")
+  user          User         @relation(fields: [userKey], references: [key])
+  docs          CommentDoc[]
+
+  @@map("comments")
+}
+
+model Modification {
+  key           String            @id @default(uuid())
+  id            Int /// integer given by Portalega
+  title         String
+  actuation     String
+  description   String?
+  createdAt     String            @map("created_at") /// DateTime
+  completedAt   String?           @map("completed_at") /// DateTime
+  modificatedAt String?           @map("modificated_at") /// DateTime
+  userKey       String            @map("user_key")
+  user          User              @relation(fields: [userKey], references: [key])
+  docs          ModificationDoc[]
+
+  @@map("modifications")
 }
 
 model Proposal {
-  key               Int                @id @default(autoincrement())
-  userKey           Int                @map("user_key")
+  key               String                         @id @default(uuid())
+  id                Int /// integer given by Portalega
+  isDraft           Int                            @default(0) @map("is_draft")
   title             String
   code              String?
   description       String?
   justification     String?
-  /// path to a file
-  template          String?
+  createdAt         String                         @map("created_at") /// DateTime
+  completedAt       String?                        @map("completed_at") /// DateTime
+  modificatedAt     String?                        @map("modificated_at") /// DateTime
   /// True if the proposal is already checked
-  checked           Boolean            @default(false)
-  documentation     Doc[]
-  user              User               @relation(fields: [userKey], references: [key])
-  guidingPrinciples GuidingPrinciple[] @relation("GuidingPrincipleToProposal")
+  checked           Boolean                        @default(false)
+  userKey           String                         @map("user_key")
+  user              User                           @relation(fields: [userKey], references: [key])
+  principles        String?
+  guidingPrinciples GuidingPrinciplesOnProposals[]
+  // proposalBlocks    ProposalBlock[]
+  docs              ProposalDoc[]
+  templates         ProposalTemplate[]
 
   @@map("proposals")
 }
+
+model GuidingPrinciplesOnProposals {
+  proposalKey         String           @map("proposal_key")
+  proposal            Proposal         @relation(fields: [proposalKey], references: [key])
+  guidingPrincipleKey String           @map("guiding_principle_key")
+  guidingPrinciple    GuidingPrinciple @relation(fields: [guidingPrincipleKey], references: [key])
+
+  @@id([proposalKey, guidingPrincipleKey])
+  @@map("guiding_principles_proposals")
+}
+
+// model ProposalBlock {
+//   key         Int      @id @default(autoincrement())
+//   proposal    Proposal @relation(fields: [proposalKey], references: [key])
+//   proposalKey Int      @map("proposal_key")
+// 
+//   /// editable fields
+//   community     String?
+//   municipality  String?
+//   apoyo_ca      Boolean @default(false) @map("apoyo_ca")
+//   apoyo_dist    Boolean @default(false) @map("apoyo_dist")
+//   maturityLevel Int?    @map("maturity_level") /// {null: N/A, 0: Bajo, 1: Medio, ... }
+//   assets        Asset[]
+// }
+// 
+// model Asset {
+//   key              Int            @id @default(autoincrement())
+//   name             String
+//   ProposalBlock    ProposalBlock? @relation(fields: [proposalBlockKey], references: [key])
+//   proposalBlockKey Int?           @map("proposal_block_key")
+//   /// editable fields
+//   gridType         String         @map("grid_type") /// RdD / RdT
+//   type             String /// Generación / Dist / ...
+//   mw               Int
+// }
