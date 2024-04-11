@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -160,6 +160,7 @@ model Proposal {
   // proposalBlocks    ProposalBlock[]
   docs              ProposalDoc[]
   templates         ProposalTemplate[]
+  ProposalPosition  ProposalPosition[]
 
   @@map("proposals")
 }
@@ -174,27 +175,32 @@ model GuidingPrinciplesOnProposals {
   @@map("guiding_principles_proposals")
 }
 
-// model ProposalBlock {
-//   key         Int      @id @default(autoincrement())
-//   proposal    Proposal @relation(fields: [proposalKey], references: [key])
-//   proposalKey Int      @map("proposal_key")
-// 
-//   /// editable fields
-//   community     String?
-//   municipality  String?
-//   apoyo_ca      Boolean @default(false) @map("apoyo_ca")
-//   apoyo_dist    Boolean @default(false) @map("apoyo_dist")
-//   maturityLevel Int?    @map("maturity_level") /// {null: N/A, 0: Bajo, 1: Medio, ... }
-//   assets        Asset[]
-// }
-// 
-// model Asset {
-//   key              Int            @id @default(autoincrement())
-//   name             String
-//   ProposalBlock    ProposalBlock? @relation(fields: [proposalBlockKey], references: [key])
-//   proposalBlockKey Int?           @map("proposal_block_key")
-//   /// editable fields
-//   gridType         String         @map("grid_type") /// RdD / RdT
-//   type             String /// Generación / Dist / ...
-//   mw               Int
-// }
+model ProposalPosition {
+  key         String   @id @default(uuid())
+  id          Int
+  proposal    Proposal @relation(fields: [proposalKey], references: [key])
+  proposalKey String   @map("proposal_key")
+
+  action        String?
+  yearNeeded    Int?    @map("year_needed")
+  /// editable fields
+  phase         String?
+  phaseComments String? @map("phase_comments")
+  community     String?
+  municipality  String?
+  apoyo_ca      Boolean @default(false) @map("apoyo_ca")
+  apoyo_dist    Boolean @default(false) @map("apoyo_dist")
+  maturityLevel Int?    @map("maturity_level") /// {null: N/A, 0: Bajo, 1: Medio, ... }
+  assets        Asset[]
+}
+
+model Asset {
+  key              Int               @id @default(autoincrement())
+  name             String
+  ProposalBlock    ProposalPosition? @relation(fields: [proposalBlockKey], references: [key])
+  proposalBlockKey String?           @map("proposal_block_key")
+  /// editable fields
+  gridType         String            @map("grid_type") /// RdD / RdT
+  type             String /// Generación / Dist / ...
+  mw               Int
+}
